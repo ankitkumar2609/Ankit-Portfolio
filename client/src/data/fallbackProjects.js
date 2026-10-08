@@ -1,0 +1,28 @@
+export const fallbackProjects = [
+  {
+    _id: 'proj_1',
+    title: 'WorkoutAdvisor',
+    description: 'Personalized Workout Advisory Platform built with React.js, Node.js, Express.js, and MongoDB. Features responsive React frontend, RESTful Express APIs, and client-server integration for customized workout recommendations.',
+    technologies: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'Tailwind CSS', 'REST API'],
+    githubUrl: 'https://github.com/ankitkumar2609/WorkoutAdvisor',
+    liveUrl: '#contact',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    category: 'Full Stack',
+    featured: true,
+    order: 1,
+    createdAt: new Date('2026-06-01').toISOString(),
+  },
+  {
+    _id: 'proj_2',
+    title: 'Interview Coach',
+    description: 'AI-Powered Interview Preparation Platform using React.js, Node.js, Express.js, MongoDB, and AI integration. Provides AI mock interviews, resume analysis, job-description matching, project-defense evaluation, and user session report storage.',
+    technologies: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'AI/LLM', 'Tailwind CSS'],
+    githubUrl: 'https://github.com/ankitkumar2609/Interview-coach',
+    liveUrl: '#contact',
+    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80',
+    category: 'AI & ML',
+    featured: true,
+    order: 2,
+    createdAt: new Date('2026-07-01').toISOString(),
+  },
+];

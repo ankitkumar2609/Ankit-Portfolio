@@ -1,0 +1,29 @@
+{
+  "name": "ankit-kumar-portfolio",
+  "version": "1.0.0",
+  "description": "Full-stack MERN Portfolio Website for Ankit Kumar",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "start": "node server/server.js",
+    "build": "npm run install:all && npm run build --prefix client",
+    "seed": "node server/seed.js",
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server"
+  },
+  "keywords": [
+    "mern",
+    "portfolio",
+    "react",
+    "node",
+    "express",
+    "mongodb",
+    "tailwind"
+  ],
+  "author": "Ankit Kumar",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
