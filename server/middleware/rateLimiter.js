@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 
 export const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  max: 15, // Limit each IP to 15 requests per 15 minutes
   standardHeaders: true,
   legacyHeaders: false,
   message: {

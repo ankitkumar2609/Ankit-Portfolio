@@ -47,7 +47,11 @@ const Contact = () => {
         toast.error(res.message || 'Failed to send message');
       }
     } catch (err) {
-      const errMsg = err.response?.data?.message || err.message || 'Failed to send message. Please try again.';
+      const errMsg =
+        err.response?.data?.message ||
+        (Array.isArray(err.response?.data?.errors) && err.response.data.errors[0]?.msg) ||
+        err.message ||
+        'Failed to send message. Please try again.';
       toast.error(errMsg);
     } finally {
       setSubmitting(false);

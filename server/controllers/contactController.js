@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import ContactMessage from '../models/ContactMessage.js';
 import sendEmail from '../utils/sendEmail.js';
 
@@ -18,19 +19,25 @@ export const submitContact = async (req, res, next) => {
       });
     }
 
-    const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
 
     let contactDoc = null;
-    try {
-      contactDoc = await ContactMessage.create({
-        name,
-        email,
-        subject: subject || 'Portfolio Inquiry',
-        message,
-        ipAddress,
-      });
-    } catch (dbErr) {
-      console.warn('[Contact DB Warning] Could not save to DB, using in-memory store:', dbErr.message);
+    if (mongoose.connection.readyState === 1) {
+      try {
+        contactDoc = await ContactMessage.create({
+          name,
+          email,
+          subject: subject || 'Portfolio Inquiry',
+          message,
+          ipAddress,
+        });
+      } catch (dbErr) {
+        console.warn('[Contact DB Warning] Could not save to DB, using in-memory store:', dbErr.message);
+        contactDoc = null;
+      }
+    }
+
+    if (!contactDoc) {
       contactDoc = {
         _id: 'msg_' + Date.now(),
         name,
@@ -69,13 +76,25 @@ export const submitContact = async (req, res, next) => {
 // @access  Private (Admin)
 export const getMessages = async (req, res, next) => {
   try {
-    let messages = [];
-    try {
-      messages = await ContactMessage.find().sort({ createdAt: -1 });
-    } catch (dbErr) {
-      console.warn('[Contact DB Warning] Fetching from in-memory fallback store');
-      messages = inMemoryMessages;
+    let dbMessages = [];
+    if (mongoose.connection.readyState === 1) {
+      try {
+        dbMessages = await ContactMessage.find().sort({ createdAt: -1 });
+      } catch (dbErr) {
+        console.warn('[Contact DB Warning] Fetching from in-memory fallback store');
+      }
     }
+
+    // Combine DB messages and in-memory messages, avoiding duplicates by _id
+    const combinedMap = new Map();
+    dbMessages.forEach((msg) => combinedMap.set(String(msg._id), msg));
+    inMemoryMessages.forEach((msg) => {
+      if (!combinedMap.has(String(msg._id))) {
+        combinedMap.set(String(msg._id), msg);
+      }
+    });
+
+    const messages = Array.from(combinedMap.values());
 
     res.status(200).json({
       success: true,
@@ -92,16 +111,20 @@ export const getMessages = async (req, res, next) => {
 // @access  Private (Admin)
 export const deleteMessage = async (req, res, next) => {
   try {
-    try {
-      const msg = await ContactMessage.findById(req.params.id);
-      if (msg) {
-        await msg.deleteOne();
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const msg = await ContactMessage.findById(req.params.id);
+        if (msg) {
+          await msg.deleteOne();
+        }
+      } catch (dbErr) {
+        // Fallback to removing from memory below
       }
-    } catch (dbErr) {
-      const idx = inMemoryMessages.findIndex((m) => m._id === req.params.id);
-      if (idx !== -1) {
-        inMemoryMessages.splice(idx, 1);
-      }
+    }
+
+    const idx = inMemoryMessages.findIndex((m) => String(m._id) === String(req.params.id));
+    if (idx !== -1) {
+      inMemoryMessages.splice(idx, 1);
     }
 
     res.status(200).json({

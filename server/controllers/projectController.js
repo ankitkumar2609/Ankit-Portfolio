@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Project from '../models/Project.js';
 
 export const fallbackProjectsList = [
@@ -35,10 +36,12 @@ export const fallbackProjectsList = [
 export const getProjects = async (req, res, next) => {
   try {
     let projects = [];
-    try {
-      projects = await Project.find().sort({ order: 1, createdAt: -1 });
-    } catch (dbErr) {
-      console.warn('[Projects DB Warning] Could not fetch projects from DB, serving fallback data');
+    if (mongoose.connection.readyState === 1) {
+      try {
+        projects = await Project.find().sort({ order: 1, createdAt: -1 });
+      } catch (dbErr) {
+        console.warn('[Projects DB Warning] Could not fetch projects from DB, serving fallback data');
+      }
     }
 
     if (!projects || projects.length === 0) {
@@ -61,10 +64,12 @@ export const getProjects = async (req, res, next) => {
 export const getProject = async (req, res, next) => {
   try {
     let project = null;
-    try {
-      project = await Project.findById(req.params.id);
-    } catch (dbErr) {
-      project = fallbackProjectsList.find((p) => p._id === req.params.id);
+    if (mongoose.connection.readyState === 1) {
+      try {
+        project = await Project.findById(req.params.id);
+      } catch (dbErr) {
+        project = fallbackProjectsList.find((p) => p._id === req.params.id);
+      }
     }
 
     if (!project) {

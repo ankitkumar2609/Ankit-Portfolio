@@ -1,8 +1,18 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log('[Nodemailer] SMTP settings not fully configured in environment. Skipping email sending.');
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+
+  const isPlaceholderPass =
+    !smtpPass ||
+    smtpPass === 'your_app_password_here' ||
+    smtpPass === 'your_gmail_app_password' ||
+    smtpPass.includes('your_');
+
+  if (!smtpHost || !smtpUser || isPlaceholderPass) {
+    console.log('[Nodemailer] SMTP password is not configured (or is placeholder). Skipping live email dispatch.');
     return { success: true, simulated: true };
   }
 

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 
 // @desc    Admin login
@@ -41,10 +42,12 @@ export const login = async (req, res, next) => {
 
     // 2. Try matching user in MongoDB database
     let user = null;
-    try {
-      user = await User.findOne({ email: inputEmail }).select('+password');
-    } catch (dbErr) {
-      console.warn('[Auth DB Warning] Database query failed:', dbErr.message);
+    if (mongoose.connection.readyState === 1) {
+      try {
+        user = await User.findOne({ email: inputEmail }).select('+password');
+      } catch (dbErr) {
+        console.warn('[Auth DB Warning] Database query failed:', dbErr.message);
+      }
     }
 
     if (user) {
